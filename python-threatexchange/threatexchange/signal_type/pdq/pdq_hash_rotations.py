@@ -1,17 +1,11 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 
-import numpy as np
-from enum import Enum, auto
+'''
+Rotating the image's hashes 
+'''
 
-class RotationType(Enum):
-    ORIGINAL = auto()
-    ROTATE90 = auto()
-    ROTATE180 = auto()
-    ROTATE270 = auto()
-    FLIPX = auto()
-    FLIPY = auto()
-    FLIPPLUS1 = auto()
-    FLIPMINUS1 = auto()
+import numpy as np
+from threatexchange.content_type.content_base import RotationType
 
 class PDQHashRotations:
     @staticmethod
@@ -83,7 +77,7 @@ class PDQHashRotations:
         return result
     
     @classmethod
-    def _try_all_rotation(cls, hash: str):
+    def try_all_rotation(cls, hash: str):
         matrix = cls._hash_to_matrix(hash)
         rotations = {
             RotationType.ORIGINAL: matrix,
