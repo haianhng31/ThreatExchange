@@ -83,7 +83,7 @@ class TestPDQHashRotations:
 
     def test_try_all_rotation(self):
         """Test the try_all_rotation method"""
-        rotated_hashes = PDQHashRotations._try_all_rotation(self.SAMPLE_HASH)
+        rotated_hashes = PDQHashRotations.try_all_rotation(self.SAMPLE_HASH)
         
         # Check that all rotation types are present
         assert set(rotated_hashes.keys()) == set(RotationType)

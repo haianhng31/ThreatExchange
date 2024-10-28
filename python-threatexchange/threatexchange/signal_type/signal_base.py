@@ -11,7 +11,7 @@ import typing as t
 from threatexchange import common
 from threatexchange.content_type import content_base
 from threatexchange.signal_type import index
-from threatexchange.signal_type.pdq.pdq_hash_rotations import RotationType
+from threatexchange.content_type.content_base import RotationType
 
 class SignalComparisonResult(t.NamedTuple):
     match: bool

@@ -17,7 +17,8 @@ from threatexchange.exchanges.impl.fb_threatexchange_signal import (
     HasFbThreatExchangeIndicatorType,
 )
 from threatexchange.signal_type.pdq.pdq_index import PDQIndex
-from threatexchange.signal_type.pdq.pdq_hash_rotations import PDQHashRotations, RotationType
+from threatexchange.signal_type.pdq.pdq_hash_rotations import PDQHashRotations
+from threatexchange.content_type.content_base import RotationType
 
 class PdqSignal(
     signal_base.SimpleSignalType,
@@ -68,7 +69,7 @@ class PdqSignal(
         hash1: str,
         hash2: str,
         pdq_dist_threshold: int = PDQ_CONFIDENT_MATCH_THRESHOLD,
-        try_rotation: bool = False
+        try_rotation: bool = True
     ) -> signal_base.SignalComparisonResult:
         if not try_rotation:
             dist = simple_distance(hash1, hash2)
@@ -77,7 +78,7 @@ class PdqSignal(
             )
 
         rotator = PDQHashRotations()
-        rotations = rotator._try_all_rotation(hash2)
+        rotations = rotator.try_all_rotation(hash2)
 
         min_dist = float('inf')
         best_rotation = RotationType.ORIGINAL
