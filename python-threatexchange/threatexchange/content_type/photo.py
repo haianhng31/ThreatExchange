@@ -22,7 +22,7 @@ class PhotoContent(ContentType):
       * frames from videos
       * thumbnails of videos
     """
-
+    @classmethod
     def rotate_image(cls, image_data: bytes, angle: float) -> bytes: 
         """
         Rotate an image by a given angle 
@@ -33,6 +33,7 @@ class PhotoContent(ContentType):
                 rotated_img.save(buffer, format=img.format)
                 return buffer.getvalue()
 
+    @classmethod
     def flip_x(cls, image_data: bytes) -> bytes: 
         """
         Flip the image horizontally along the X-axis.
@@ -42,7 +43,8 @@ class PhotoContent(ContentType):
             with io.BytesIO() as buffer: 
                 flipped_img.save(buffer, format=img.format)
                 return buffer.getvalue()
-            
+
+    @classmethod
     def flip_y(cls, image_data: bytes) -> bytes:
         """
         Flip the image vertically along the Y-axis.
@@ -52,7 +54,8 @@ class PhotoContent(ContentType):
             with io.BytesIO() as buffer:
                 flipped_img.save(buffer, format=img.format)
                 return buffer.getvalue()
-            
+
+    @classmethod   
     def flip_plus1(cls, image_data: bytes) -> bytes:
         """
         Flip the image diagonally along the line y = x.
@@ -62,7 +65,8 @@ class PhotoContent(ContentType):
             with io.BytesIO() as buffer:
                 flipped_img.save(buffer, format=img.format)
                 return buffer.getvalue()
-            
+
+    @classmethod     
     def flip_minus1(cls, image_data: bytes) -> bytes:
         """
         Flip the image diagonally along the line y = -x.
@@ -72,7 +76,8 @@ class PhotoContent(ContentType):
             with io.BytesIO() as buffer:
                 flipped_img.save(buffer, format=img.format)
                 return buffer.getvalue()
-            
+    
+    @classmethod
     def try_all_rotations(cls, image_data: bytes): 
         """
         Try all possible rotations to the image

@@ -9,7 +9,8 @@ import argparse
 import logging
 import pathlib
 import typing as t
-
+from PIL import Image
+import io
 
 from threatexchange import common
 from threatexchange.cli.fetch_cmd import FetchCommand
@@ -24,6 +25,7 @@ from threatexchange.content_type.content_base import ContentType
 
 from threatexchange.signal_type.signal_base import MatchesStr, TextHasher, FileHasher
 from threatexchange.cli import command_base
+from threatexchange.content_type.photo import PhotoContent
 
 
 TMatcher = t.Callable[[pathlib.Path], t.List[IndexMatch]]
@@ -222,6 +224,17 @@ def _match_file(
     if issubclass(s_type, MatchesStr):
         return index.query(path.read_text())
     assert issubclass(s_type, FileHasher)
+    logging.info("Signal type: %s", s_type.get_name())  # Use get_name() method
+    logging.debug("Full signal type info: %r", s_type) 
+     # If it's a photo file, use rotation matching
+    
+    if s_type == "photo" or path.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.bmp']:
+        try:
+            return _match_photo_with_rotations(path, s_type, index)
+        except Exception as e:
+            logging.warning(f"Failed to process image rotations for {path}: {e}")
+            # Fall back to normal file matching
+
     return index.query(s_type.hash_from_file(path))
 
 
@@ -245,4 +258,35 @@ def _match_hashes(
                 2,
             )
         ret.extend(index.query(hash))
+    return ret
+
+def _match_photo_with_rotations(path: pathlib.Path, s_type: t.Type[SignalType], index: SignalTypeIndex) -> t.Sequence[IndexMatch]:
+    """
+    Match a photo file considering all possible rotations.
+    """
+    ret: t.List[IndexMatch] = []
+
+    with open(path, 'rb') as f:
+        image_data = f.read()
+        
+    # Get all rotations
+    rotations = PhotoContent.try_all_rotations(image_data)
+
+    for rotation_type, rotated_bytes in rotations.items():
+        # Create temporary file path since hash_from_file expects a path
+        temp_path = path.parent / f"temp_{rotation_type.value}{path.suffix}"
+        try:
+            # Write rotated bytes to temporary file
+            with open(temp_path, 'wb') as f:
+                f.write(rotated_bytes)
+            
+            # Get hash and query using the temporary file
+            img_hash = s_type.hash_from_file(temp_path)
+            ret.extend(index.query(img_hash))
+            
+        finally:
+            # Clean up temporary file
+            if temp_path.exists():
+                temp_path.unlink()
+            
     return ret
